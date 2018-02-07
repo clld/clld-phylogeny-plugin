@@ -10,10 +10,49 @@
     ${Tree.head(req)|n}
 </%block>
 
-<h2>${title()}</h2>
+<div class="row-fluid">
+    <div class="span8">
+        <h2>${title()}</h2>
 
-% if ctx.description:
-    <div class="alert alert-info">${ctx.description}</div>
-% endif
-
-${tree.render()}
+        % if ctx.description:
+            <div class="alert alert-info">${ctx.description}</div>
+        % endif
+        % if tree.parameters:
+            <div class="alert alert-success">
+                The tree has been pruned to only contain leaf nodes with values for
+                the selected variables. For the full tree click
+                <a href="${req.resource_url(ctx)}">here</a>.
+            </div>
+        % endif
+        ${tree.render()}
+    </div>
+    <div class="span4">
+        <% ca = h.get_adapter(h.interfaces.IRepresentation, ctx, req, ext='description.html') %>
+        % if ca:
+            <div class="well well-small">
+                ${ca.render(ctx, req)|n}
+            </div>
+        % endif
+        % if tree.parameters:
+            <div class="accordion" id="values-acc" data-spy="affix" data-offset-top="0"
+                 style="margin-right: 10px;">
+                % for parameter in tree.parameters:
+                    <div class="accordion-group">
+                        <div class="accordion-heading">
+                            <a class="accordion-toggle" data-toggle="collapse"
+                               data-parent="#values-acc" href="#acc-${parameter.id}">
+                                ${parameter.name}
+                            </a>
+                        </div>
+                        <div id="acc-${parameter.id}"
+                             class="accordion-body collapse${' in' if loop.first else ''}">
+                            <div class="accordion-inner">
+                                ${h.get_adapter(h.interfaces.IRepresentation, parameter, req, ext='valuetable.html').render(parameter, req)|n}
+                            </div>
+                        </div>
+                    </div>
+                % endfor
+            </div>
+        % endif
+    </div>
+</div>

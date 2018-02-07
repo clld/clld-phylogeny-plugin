@@ -33,6 +33,7 @@ setup(
             'wheel',
             'twine'],
         'test': [
+            'pytest-clld',
             'pytest>=3.1',
             'pytest-mock',
             'mock',

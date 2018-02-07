@@ -1,10 +1,14 @@
 CLLD_PHYLOGENY_PLUGIN = {};
 
 
-CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec) {
+CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec, offset) {
     var marker, tt;
+    if (!spec) {
+        return;
+    }
     if (spec.shape === 'c') {
         marker = container.append("circle")
+            .attr("cx", offset * 12)
             .attr("height", 12)
             .attr("width", 12)
             .attr("r", 5)
@@ -12,12 +16,13 @@ CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec) {
         marker = container.append("rect")
             .attr("height", 10)
             .attr("width", 10)
-            .attr("x", 1)
-            .attr("y", 1)
+            .attr("x", offset * 13 - 6)
+            .attr("y", -5)
     } else {
         return
     }
-    marker.style("fill", spec.color);
+    marker
+        .style("fill", spec.color);
     if (spec.conflict) {
         marker.style("stroke", "#f00")
             .style("stroke-width", "2.5");
@@ -26,7 +31,7 @@ CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec) {
         marker.style("stroke", "#222")
             .style("stroke-width", "0.5");
     }
-    if (spec.tooltip !== undefined) {
+    if (spec.tooltip) {
         marker
             .on("click", function () {
                 tt = $('#' + spec.eid);
@@ -52,19 +57,21 @@ CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec) {
     }
 };
 
-
 CLLD_PHYLOGENY_PLUGIN.nodeStyler = function (labelSpec) {
     return function (container, node) {
-        var text, current;
+        var text, current, offset = ' ';
         if (d3.layout.phylotree.is_leafnode(node)) {
             text = container.select("text");
             current = text.text();
-            if (!text.text().endsWith(' ')) {
-                text.text('   ' + text.text() + ' ');
+            if (!current.endsWith(' ')) {
                 if (labelSpec.hasOwnProperty(current)) {
                     text.attr("fill", "red");
-                    CLLD_PHYLOGENY_PLUGIN.marker(container, labelSpec[current]);
+                    for (i = 0; i < labelSpec[current].length; i++) {
+                        CLLD_PHYLOGENY_PLUGIN.marker(container, labelSpec[current][i], i);
+                        offset += '   ';
+                    }
                 }
+                text.text(offset + current + ' ');
             }
         }
     }

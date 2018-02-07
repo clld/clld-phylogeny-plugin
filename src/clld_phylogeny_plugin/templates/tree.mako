@@ -7,9 +7,9 @@
                 ${JSNamespace('CLLD_PHYLOGENY_PLUGIN').tree(obj.eid, obj.newick, obj.labelSpec, obj.options)|n};
         });
     </script>
-% elif obj.parameter:
+% elif obj.parameters:
     <div class="alert alert-error">
         No leaf node in this phylogeny is related to a ${_('Language')} coded for
-        ${_('Parameter')} ${h.link(req, obj.parameter)}.
+        any of the selected ${_('Parameters')}.
     </div>
 % endif

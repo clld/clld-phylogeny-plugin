@@ -5,10 +5,11 @@ from pyramid import testing
 from pyramid import config
 import pytest
 
+from pytest_clld._app import ExtendedTestApp as TestApp
+
 
 @pytest.fixture(scope='module')
 def testapp():
-    from webtest import TestApp
     from clld.db.meta import DBSession, VersionedDBSession, Base
     from clld.db.models import common
     from clld_phylogeny_plugin import models

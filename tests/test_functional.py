@@ -5,14 +5,17 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    "url,content",
+    "method,url,content",
     [
-        ('/phylogenys', 'Phylogenys'),
-        ('/phylogenys/p', 'phy'),
-        ('/phylogenys/p?parameter=p1', 'phy'),
-        ('/phylogenys/p?parameter=p2', 'CLLD_PHYLOGENY_PLUGIN'),
-        ('/phylogenys/p?parameter=p3', 'No leaf node'),
+        ('get_html', '/phylogenys', 'Phylogenys'),
+        ('get_dt', '/phylogenys', None),
+        ('get_html', '/phylogenys/p', 'phy'),
+        ('get_html', '/phylogenys/p?parameter=p1&parameter=p2', 'phy'),
+        ('get_html', '/phylogenys/p?parameter=p1&parameter=p3', 'phy'),
+        ('get_html', '/phylogenys/p?parameter=p2', 'CLLD_PHYLOGENY_PLUGIN'),
+        ('get_html', '/phylogenys/p?parameter=p3', 'No leaf node'),
     ])
-def test_url(testapp, url, content):
-    res = testapp.get(url)
-    assert content in res.body.decode('utf8')
+def test_url(testapp, method, url, content):
+    res = getattr(testapp, method)(url)
+    if content:
+        assert content in res.body.decode('utf8')
