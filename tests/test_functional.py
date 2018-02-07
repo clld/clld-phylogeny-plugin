@@ -9,8 +9,9 @@ import pytest
     [
         ('/phylogenys', 'Phylogenys'),
         ('/phylogenys/p', 'phy'),
-        ('/phylogenys/p?parameter=p', 'phy'),
-        ('/phylogenys/p?parameter=p2', 'phy'),
+        ('/phylogenys/p?parameter=p1', 'phy'),
+        ('/phylogenys/p?parameter=p2', 'CLLD_PHYLOGENY_PLUGIN'),
+        ('/phylogenys/p?parameter=p3', 'No leaf node'),
     ])
 def test_url(testapp, url, content):
     res = testapp.get(url)

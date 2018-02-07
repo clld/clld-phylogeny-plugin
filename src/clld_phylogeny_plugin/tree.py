@@ -15,6 +15,7 @@ from clld.web.util.component import Component
 from clld.web.util.htmllib import HTML
 from clld.web.util.helpers import link, map_marker_img
 import ete3
+from ete3.coretype.tree import TreeError
 
 from clld_phylogeny_plugin.interfaces import ITree
 
@@ -69,6 +70,8 @@ class Tree(Component):
                     t.prune(nodes, preserve_branch_length=True)
                 else:
                     raise
+            except TreeError:
+                return
             return t.write(format=1)
         return self.ctx.newick
 
