@@ -36,6 +36,6 @@ git push --tags origin
 
 - Commit/push the version change:
 ```shell
-git commit -m "bump version for development"
+git commit -a -m "bump version for development"
 git push origin
 ```
