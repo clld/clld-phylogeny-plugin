@@ -94,16 +94,3 @@ def selenium(app, logger='selenium.webdriver.remote.remote_connection'):
     res.browser.quit()
     res.server.quit()
     shutil.rmtree(res.downloads)
-
-
-@pytest.fixture(scope='module')
-def configurator():
-    config = testing.setUp(
-        request=testing.DummyRequest(translate=lambda s: s),
-        settings={
-            'sqlalchemy.url': 'sqlite://',
-            'mako.directories': []})
-    config.include('clld.web.app')
-    config.include('clld_phylogeny_plugin')
-    yield config
-    testing.tearDown()
