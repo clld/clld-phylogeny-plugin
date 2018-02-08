@@ -7,5 +7,5 @@ python:
 cache: pip
 before_cache: rm -f $HOME/.cache/pip/log/debug.log
 install: pip install .[test] codecov
-script: pytest
+script: pytest -m "not selenium"
 after_success: codecov

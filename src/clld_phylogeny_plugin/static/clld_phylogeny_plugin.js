@@ -2,7 +2,7 @@ CLLD_PHYLOGENY_PLUGIN = {};
 
 
 CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec, offset) {
-    var marker, tt;
+    var marker, tt, close;
     if (!spec) {
         return;
     }
@@ -22,7 +22,8 @@ CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec, offset) {
         return
     }
     marker
-        .style("fill", spec.color);
+        .style("fill", spec.color)
+        .attr("id", 'm-' + spec.eid);
     if (spec.conflict) {
         marker.style("stroke", "#f00")
             .style("stroke-width", "2.5");
@@ -32,6 +33,7 @@ CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec, offset) {
             .style("stroke-width", "0.5");
     }
     if (spec.tooltip) {
+        close = '<button style="float: right;" onclick="$(\'#' + spec.eid + '\').clickover(\'toggle\');">Close</button>';
         marker
             .on("click", function () {
                 tt = $('#' + spec.eid);
@@ -50,7 +52,7 @@ CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec, offset) {
                         'html': true,
                         'placement': 'bottom',
                         'title': spec.tooltip_title || undefined,
-                        'content': spec.tooltip});
+                        'content': spec.tooltip + close});
                     tt.clickover('show');
                 }
             });

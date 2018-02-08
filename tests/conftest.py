@@ -1,22 +1,27 @@
 # coding: utf8
 from __future__ import unicode_literals, print_function, division
+import tempfile
+import shutil
 
 from pyramid import testing
 from pyramid import config
+import transaction
 import pytest
 
 from pytest_clld._app import ExtendedTestApp as TestApp
 
 
-@pytest.fixture(scope='module')
-def testapp():
+@pytest.fixture(scope='session')
+def app():
     from clld.db.meta import DBSession, VersionedDBSession, Base
     from clld.db.models import common
     from clld_phylogeny_plugin import models
 
+    tmpdir = tempfile.mkdtemp()
+
     def main():
         cfg = config.Configurator(settings={
-            'sqlalchemy.url': 'sqlite://',
+            'sqlalchemy.url': 'sqlite:///{0}/db.sqlite'.format(tmpdir),
             'mako.directories': [
                 'clld:web/templates',
                 'clld_phylogeny_plugin:templates'
@@ -59,7 +64,36 @@ def testapp():
     DBSession.add(phy)
     DBSession.flush()
     models.LanguageTreeLabel(language=lang1, treelabel=label)
-    yield TestApp(wsgi_app)
+    transaction.commit()
+    yield wsgi_app
+    shutil.rmtree(tmpdir)
+
+
+@pytest.fixture(scope='session')
+def testapp(app):
+    yield TestApp(app)
+
+
+@pytest.fixture(scope='session')
+def selenium(app, logger='selenium.webdriver.remote.remote_connection'):
+    import logging
+    import tempfile
+    import shutil
+    from pytest_clld import _selenium
+
+    selenium_logger = logging.getLogger(logger)
+    selenium_logger.setLevel(logging.WARNING)
+
+    res = _selenium.Selenium(app, '127.0.0.1:8880', tempfile.mkdtemp())
+    res.server.start()
+    res.sleep()
+    assert res.server.srv
+
+    yield res
+
+    res.browser.quit()
+    res.server.quit()
+    shutil.rmtree(res.downloads)
 
 
 @pytest.fixture(scope='module')
