@@ -2,13 +2,15 @@ from setuptools import setup, find_packages
 
 setup(
     name='clld-phylogeny-plugin',
-    version='0.1.1.dev0',
+    version='1.0.0',
     description='clld-phylogeny-plugin',
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Framework :: Pyramid",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
