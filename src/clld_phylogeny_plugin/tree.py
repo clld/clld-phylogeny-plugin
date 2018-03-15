@@ -69,19 +69,11 @@ class Tree(Component):
     def newick(self):
         if self.parameters:
             t = ete3.Tree(self.ctx.newick, format=1)
-            nodes = [n.encode('utf8') if PY2 else n for n in self.labelSpec.keys()]
+            nodes = set(n.encode('utf8') if PY2 else n for n in self.labelSpec.keys())
             try:
-                t.prune(nodes, preserve_branch_length=True)
-            except ValueError as e:  # pragma: no cover
-                if 'Node names not found: [' in e.message:
-                    for name in eval('[' + e.message.split('[')[1]):
-                        try:
-                            nodes.remove(name.encode('utf8') if PY2 else name)
-                        except ValueError:
-                            pass
-                    t.prune(nodes, preserve_branch_length=True)
-                else:
-                    raise
+                t.prune(
+                    nodes.intersection(set(n.name for n in t.traverse())),
+                    preserve_branch_length=True)
             except TreeError:
                 return
             return t.write(format=1)
