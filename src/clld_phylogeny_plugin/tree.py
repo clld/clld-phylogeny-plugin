@@ -49,13 +49,18 @@ class Tree(Component):
 
     @lazyproperty
     def parameters(self):
+        pids = []
         if 'parameter' in self.req.params:
+            pids = self.req.params.getall('parameter')
+        elif 'parameters' in self.req.params:
+            pids = self.req.params['parameters'].split(',')
+
+        if pids:
             return DBSession.query(Parameter)\
-                .filter(Parameter.id.in_(self.req.params.getall('parameter')))\
+                .filter(Parameter.id.in_(pids))\
                 .options(
                     joinedload_all(Parameter.valuesets, ValueSet.values),
-                    joinedload(Parameter.domain),
-                )\
+                    joinedload(Parameter.domain))\
                 .all()
         return []
 
@@ -90,9 +95,11 @@ class Tree(Component):
         if pindex is not None:
             parameter = self.parameters[pindex]
             domain = self.domains[pindex]
-            vname = lambda v: domain[v.domainelement_pk].name if v.domainelement_pk else v.name
             language2valueset = {
                 k: v[pindex] for k, v in self.language2valueset.items() if v[pindex]}
+
+            def vname(v):
+                return domain[v.domainelement_pk].name if v.domainelement_pk else v.name
 
             def comp(a, b):
                 if parameter.domain:
@@ -120,16 +127,20 @@ class Tree(Component):
                     lis = []
                     for v in values:
                         lis.append(HTML.li(
-                            map_marker_img(self.req, domain[v.domainelement_pk] if v.domainelement_pk else v),
+                            map_marker_img(
+                                self.req, domain[v.domainelement_pk]
+                                if v.domainelement_pk else v),
                             '{0}: '.format(vname(v)),
                             link(self.req, v.valueset.language)))
                 res['tooltip'] = HTML.ul(*lis, class_='unstyled')
                 for lang in label.languages:
                     if lang.pk in language2valueset:
-                        res['shape'], res['color'] = self.get_marker(language2valueset[lang.pk])
+                        res['shape'], res['color'] = self.get_marker(
+                            language2valueset[lang.pk])
                         break
         else:
-            res['tooltip'] = HTML.ul(*[HTML.li(link(self.req, l)) for l in label.languages])
+            res['tooltip'] = HTML.ul(
+                *[HTML.li(link(self.req, l)) for l in label.languages])
         return res
 
     @staticmethod
@@ -142,14 +153,16 @@ class Tree(Component):
                 HTML.script(
                     src="//d3js.org/d3.v3.min.js"),
                 HTML.script(
-                    src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js",
+                    src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/"
+                        "underscore-min.js",
                     charset="utf-8"),
                 HTML.script(
                     type="text/javascript",
                     src=req.static_url('clld_phylogeny_plugin:static/phylotree.js')),
                 HTML.script(
                     type="text/javascript",
-                    src=req.static_url('clld_phylogeny_plugin:static/clld_phylogeny_plugin.js')),
+                    src=req.static_url(
+                        'clld_phylogeny_plugin:static/clld_phylogeny_plugin.js')),
             ])
 
     @lazyproperty
