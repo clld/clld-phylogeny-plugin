@@ -16,8 +16,8 @@ library to render phylogenetic trees in the browser.
 While plotting cross-linguistic data on a map serves as quick visualization of the correlation between the data and geography, plotting the data on a phylogenetic tree allows inspection of the correlation between the data and some theory about language relatedness, embodied in the tree.
 
 The `clld-phylogeny-plugin` package supports this kind of visualization by
-- adding database models to store phylogenetic trees (and how the tree labels correspond to `Language` objects)
-- adding a `Tree` component, allowing simple rendering of a tree on a page
+- adding [database models](https://github.com/clld/clld-phylogeny-plugin/blob/master/src/clld_phylogeny_plugin/models.py) to store phylogenetic trees (and how the tree labels correspond to `Language` objects)
+- adding a [`Tree` component](https://github.com/clld/clld-phylogeny-plugin/blob/f98e83681e7464d3abfb05eae2f1a3c74fdabc1f/src/clld_phylogeny_plugin/tree.py#L34), allowing simple rendering of a tree on a page
 - adding support for "plotting" `Parameter` objects on a tree, i.e. plotting the value for a given (`Parameter`, `Language`) pair next to the language's label on the tree.
 
 
