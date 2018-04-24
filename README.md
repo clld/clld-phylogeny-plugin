@@ -35,4 +35,16 @@ This will add a *Resource* `Phylogeny` with corresponding routes
 - `/phylogenys/<ID>` - a phylogeny's details page, by default rendering the associated tree.
 
 
+### Plotting parameters on trees
 
+To synchronize plotting of markers for parameter values on maps and trees, the `Tree.get_marker` method may need to
+be adjusted. This can be done by registering a derived `Tree` class as `ITree` utility:
+```python
+class MyTree(clld_phylogeny_plugin.tree.Tree):
+    def get_marker(self, valueset):
+        # compute marker shape and color from valueset
+        return shape, color
+
+....
+    config.registry.registerUtility(MyTree, ITree)
+```
