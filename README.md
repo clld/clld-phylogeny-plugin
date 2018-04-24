@@ -24,3 +24,15 @@ The `clld-phylogeny-plugin` package supports this kind of visualization by
 ## Usage
 
 TODO: See https://github.com/clld/grambank/commit/4101243597c3c95d21786fe8bdcf8cf060da609b for a minimal example.
+
+To make `clld-phylogeny-plugin` functionality available to a `clld` app, it must be included in the app's configuration - typically in `<app>:main`:
+```python
+    config.include('clld_phylogeny_plugin')
+```
+
+This will add a *Resource* `Phylogeny` with corresponding routes
+- `/phylogenys` - the index page listing all available phylogenies
+- `/phylogenys/<ID>` - a phylogeny's details page, by default rendering the associated tree.
+
+
+
