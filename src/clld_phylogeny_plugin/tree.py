@@ -195,4 +195,9 @@ class Tree(Component):
         }
 
     def get_marker(self, valueset):
+        if valueset.values:
+            val = valueset.values[0]
+            if val.domainelement and val.domainelement.jsondatadict.get('icon'):
+                icon = val.domainelement.jsondatadict.get('icon')
+                return icon[:1], '#' + icon[1:]
         return 'c', '#ff6600'

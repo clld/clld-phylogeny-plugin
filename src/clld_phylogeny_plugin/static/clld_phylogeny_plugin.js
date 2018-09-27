@@ -13,11 +13,25 @@ CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec, offset) {
             .attr("width", 12)
             .attr("r", 5)
     } else if (spec.shape === 's') {
-        marker = container.append("rect")
-            .attr("height", 10)
-            .attr("width", 10)
-            .attr("x", offset * 13 - 6)
-            .attr("y", -5)
+        marker = container.append("polygon")
+            .attr("height", 12)
+            .attr("width", 12)
+            .attr("points", "-5,-5 -5,5 5,5 5,-5")
+    } else if (spec.shape === 'd') {
+        marker = container.append("polygon")
+            .attr("height", 12)
+            .attr("width", 12)
+            .attr("points", "0,-6 6,0 0,6 -6,0")
+    } else if (spec.shape === 't') {
+        marker = container.append("polygon")
+            .attr("height", 12)
+            .attr("width", 12)
+            .attr("points", "-6,5 6,5 0,-5")
+    } else if (spec.shape === 'f') {
+        marker = container.append("polygon")
+            .attr("height", 12)
+            .attr("width", 12)
+            .attr("points", "-6,-5 6,-5 0,5")
     } else {
         return
     }
