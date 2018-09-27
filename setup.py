@@ -24,6 +24,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
+        'attrs>=18.1',
         'clld~=4.0, >=4.0.3',
         'sqlalchemy',
         'zope.interface',
