@@ -151,7 +151,7 @@ class Tree(Component):
                     rel="stylesheet",
                     href=req.static_url('clld_phylogeny_plugin:static/phylotree.css')),
                 HTML.script(
-                    src="//d3js.org/d3.v3.min.js"),
+                    src="https://d3js.org/d3.v3.min.js"),
                 HTML.script(
                     src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/"
                         "underscore-min.js",
