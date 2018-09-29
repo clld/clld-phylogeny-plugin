@@ -16,7 +16,7 @@ def test_datatable(selenium):
 @pytest.mark.selenium
 def test_param(selenium):
     selenium.browser.get(selenium.url('/phylogenys/p?parameter=p2'))
-    sleep(1.5)
+    sleep(0.5)
 
 
 @pytest.mark.selenium
