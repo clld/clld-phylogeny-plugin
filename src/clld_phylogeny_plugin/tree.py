@@ -1,11 +1,6 @@
-# coding: utf8
-from __future__ import unicode_literals, print_function, division
-
 from collections import defaultdict, OrderedDict
 from itertools import chain
 from operator import eq
-
-from six import PY2
 
 from zope.interface import implementer
 from sqlalchemy.orm import joinedload_all, joinedload
@@ -74,7 +69,7 @@ class Tree(Component):
     def newick(self):
         if self.parameters:
             t = ete3.Tree(self.ctx.newick, format=1)
-            nodes = set(n.encode('utf8') if PY2 else n for n in self.labelSpec.keys())
+            nodes = set(n for n in self.labelSpec.keys())
             try:
                 t.prune(
                     nodes.intersection(set(n.name for n in t.traverse())),

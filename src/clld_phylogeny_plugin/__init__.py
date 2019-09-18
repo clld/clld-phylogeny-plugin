@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from clld.interfaces import IParameter
 from clld.web.adapters.base import Representation
 from clld_phylogeny_plugin.models import Phylogeny

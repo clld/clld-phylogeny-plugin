@@ -21,6 +21,7 @@ git tag -a v<VERSION> -m "<VERSION> release"
 - Release to PyPI:
 ```shell
 git checkout tags/v<VERSION>
+python setup.py clean --all
 rm dist/*
 python setup.py sdist bdist_wheel
 twine upload dist/*

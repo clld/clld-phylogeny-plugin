@@ -6,11 +6,10 @@ setup(
     description='clld-phylogeny-plugin',
     classifiers=[
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Framework :: Pyramid",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
@@ -25,7 +24,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'attrs>=18.1',
-        'clld~=4.0, >=4.0.3',
+        'clld>=4.0.3',
         'sqlalchemy',
         'zope.interface',
         'ete3',
@@ -37,7 +36,7 @@ setup(
             'twine'],
         'test': [
             'pytest-clld',
-            'pytest>=3.1',
+            'pytest>=3.6',
             'pytest-mock',
             'mock',
             'coverage>=4.2',
