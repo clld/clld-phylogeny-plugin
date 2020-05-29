@@ -1,9 +1,9 @@
-from collections import defaultdict, OrderedDict
-from itertools import chain
-from operator import eq
+import operator
+import itertools
+import collections
 
 from zope.interface import implementer
-from sqlalchemy.orm import joinedload_all, joinedload
+from sqlalchemy.orm import joinedload
 from clldutils.misc import lazyproperty
 from clld.db.meta import DBSession
 from clld.db.models.common import Parameter, ValueSet
@@ -16,7 +16,7 @@ from ete3.coretype.tree import TreeError
 from clld_phylogeny_plugin.interfaces import ITree
 
 
-def all_equal(iterator, op=eq):
+def all_equal(iterator, op=operator.eq):
     iterator = iter(iterator)
     try:
         first = next(iterator)
@@ -54,7 +54,7 @@ class Tree(Component):
             return DBSession.query(Parameter)\
                 .filter(Parameter.id.in_(pids))\
                 .options(
-                    joinedload_all(Parameter.valuesets, ValueSet.values),
+                    joinedload(Parameter.valuesets).joinedload(ValueSet.values),
                     joinedload(Parameter.domain))\
                 .all()
         return []
@@ -62,7 +62,7 @@ class Tree(Component):
     @lazyproperty
     def domains(self):
         return [
-            OrderedDict([(de.pk, de) for de in p.domain])
+            collections.OrderedDict([(de.pk, de) for de in p.domain])
             for p in self.parameters]
 
     @lazyproperty
@@ -101,7 +101,7 @@ class Tree(Component):
                     return a.domainelement_pk == b.domainelement_pk
                 return a.name == b.name
 
-            values = list(chain(*[
+            values = list(itertools.chain(*[
                 language2valueset[l.pk].values for l in label.languages
                 if l.pk in language2valueset]))
             if not values:
@@ -163,7 +163,7 @@ class Tree(Component):
     @lazyproperty
     def language2valueset(self):
         if self.parameters:
-            res = defaultdict(lambda: [None] * len(self.parameters))
+            res = collections.defaultdict(lambda: [None] * len(self.parameters))
             for i, param in enumerate(self.parameters):
                 for vs in param.valuesets:
                     res[vs.language_pk][i] = vs

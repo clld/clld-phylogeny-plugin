@@ -6,7 +6,7 @@ from sqlalchemy import (
     ForeignKey,
     UniqueConstraint,
 )
-from sqlalchemy.orm import relationship, backref, joinedload_all
+from sqlalchemy.orm import relationship, backref, joinedload
 from sqlalchemy.ext.declarative import declared_attr
 
 from clld.db.meta import Base, PolymorphicBaseMixin
@@ -24,10 +24,10 @@ class Phylogeny(Base, PolymorphicBaseMixin, IdNameDescriptionMixin):
 
     @staticmethod
     def refine_factory_query(query):
-        return query.options(joinedload_all(
-            Phylogeny.treelabels,
-            TreeLabel.language_assocs,
-            LanguageTreeLabel.language))
+        return query.options(
+            joinedload(Phylogeny.treelabels)
+            .joinedload(TreeLabel.language_assocs)
+            .joinedload(LanguageTreeLabel.language))
 
 
 class TreeLabel(Base, IdNameDescriptionMixin):
