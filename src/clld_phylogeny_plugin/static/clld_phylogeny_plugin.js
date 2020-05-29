@@ -62,12 +62,13 @@ CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec, offset) {
                         .attr("id", spec.eid)
                         .html('')
                         .style("visibility", "hidden")
-                        .style("left", (d3.event.pageX) + "px")
-                        .style("top", (d3.event.pageY + 4) + "px");
+                        .style("left", (d3.event.pageX + 70) + "px")
+                        .style("top", (d3.event.pageY) + "px")
+                        .style("position", "absolute");
                     tt = $('#' + spec.eid);
                     tt.clickover({
                         'html': true,
-                        'placement': 'bottom',
+                        'placement': 'right',
                         'title': spec.tooltip_title || undefined,
                         'content': spec.tooltip + close});
                     tt.clickover('show');
