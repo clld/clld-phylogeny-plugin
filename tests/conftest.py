@@ -30,6 +30,7 @@ def app():
                     vs = self.language2valueset[lpk][pindex]
                     r['tip_title'] = label.name + " – " + 'N{0}'.format(lpk) + ":"
                     r['tip_values'] = ', '.join([v.name for v in vs.values])
+                    r['tip_values_sep'] = ' @@ '
                 except (KeyError, AttributeError, ValueError):
                     pass
             return r
