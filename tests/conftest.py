@@ -16,6 +16,24 @@ def app():
     from clld.db.meta import DBSession, Base
     from clld.db.models import common
     from clld_phylogeny_plugin import models
+    from clld_phylogeny_plugin.interfaces import ITree
+    from clld_phylogeny_plugin.tree import Tree
+
+    class TestTree(Tree):
+        def get_label_properties(self, label, pindex=None):
+            r = super().get_label_properties(label, pindex)
+            if pindex is not None:
+                parameter = self.parameters[pindex]
+                gcs = ['cari1277', 'beri1255', 'baff1240', 'queb1248', 'anak1241']
+                try:
+                    lpk = gcs.index(label.name) + 1
+                    vs = self.language2valueset[lpk][pindex]
+                    r['tip_title'] = label.name + " – " + 'N{0}'.format(lpk) + ":"
+                    r['tip_values'] = ', '.join([v.name for v in vs.values])
+                    r['tip_values_sep'] = ' @@ '
+                except (KeyError, AttributeError, ValueError):
+                    pass
+            return r
 
     tmpdir = tempfile.mkdtemp()
 
@@ -28,6 +46,7 @@ def app():
             ]})
         cfg.include('clld.web.app')
         cfg.include('clld_phylogeny_plugin')
+        cfg.registry.registerUtility(TestTree, ITree)
         return cfg.make_wsgi_app()
 
     DBSession.remove()

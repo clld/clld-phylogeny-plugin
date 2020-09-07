@@ -80,19 +80,30 @@ CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec, offset) {
 
 CLLD_PHYLOGENY_PLUGIN.nodeStyler = function (labelSpec) {
     return function (container, node) {
-        var text, current;
+        var text, current, sep;
         if (d3.layout.phylotree.is_leafnode(node)) {
             text = container.select("text");
             current = text.text();
             if (!current.endsWith(' ')) {
+                var values = [];
                 if (labelSpec.hasOwnProperty(current)) {
                     text.attr("fill", "red");
+                    sep = ' # ';
                     for (i = 0; i < labelSpec[current].length; i++) {
                         CLLD_PHYLOGENY_PLUGIN.marker(container, labelSpec[current][i], i);
+                        if (i == 0 && labelSpec[current][i].hasOwnProperty('tip_title')) {
+                          text.text(labelSpec[current][i]['tip_title']);
+                          if (labelSpec[current][i].hasOwnProperty('tip_values_sep')) {
+                            sep = labelSpec[current][i]['tip_values_sep'];
+                          }
+                        }
+                        if (labelSpec[current][i].hasOwnProperty('tip_values')) {
+                          values.push(labelSpec[current][i]['tip_values']);
+                        }
                     }
                     text.attr("transform", null).attr ("x", function (d, i) { return labelSpec[current].length * 12;});
                 }
-                text.text(current + ' ');
+                text.text(text.text() + ' ' + values.join(sep) + ' ');
             }
         }
     }

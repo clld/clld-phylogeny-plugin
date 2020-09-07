@@ -37,7 +37,7 @@ setup(
             'twine'],
         'test': [
             'pytest-clld',
-            'pytest>=3.6',
+            'pytest>=5.0',
             'pytest-mock',
             'mock',
             'coverage>=4.2',
