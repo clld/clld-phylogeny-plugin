@@ -28,6 +28,7 @@ setup(
         'clld>=4.0.3',
         'sqlalchemy',
         'zope.interface',
+        'numpy',
         'ete3',
     ],
     extras_require={
@@ -39,7 +40,6 @@ setup(
             'pytest-clld',
             'pytest>=5.0',
             'pytest-mock',
-            'mock',
             'coverage>=4.2',
             'pytest-cov',
             'webtest',
