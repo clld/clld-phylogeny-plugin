@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='clld-phylogeny-plugin',
-    version='1.5.0',
+    version='1.5.1.dev0',
     description='clld-phylogeny-plugin',
     classifiers=[
         "Programming Language :: Python",
