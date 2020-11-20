@@ -26,7 +26,7 @@ jobs:
         pip install .[test]
     - name: Test with pytest
       run: |
-        pytest
+        pytest -m "not selenium"
     - name: "Convert coverage"
       run: "python -m coverage xml"
     - name: "Upload coverage to Codecov"
