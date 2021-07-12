@@ -146,7 +146,7 @@ class Tree(Component):
                     rel="stylesheet",
                     href=req.static_url('clld_phylogeny_plugin:static/phylotree.css')),
                 HTML.script(
-                    src="https://d3js.org/d3.v3.min.js"),
+                    src="https://d3js.org/d3.v5.js"),
                 HTML.script(
                     src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/"
                         "underscore-min.js",
@@ -183,10 +183,8 @@ class Tree(Component):
 
     def get_default_options(self):
         return {
-            'reroot': False,
-            'brush': False,
             'align-tips': True,
-            'show-scale': False
+            'show-scale': False,
         }
 
     def get_marker(self, valueset):

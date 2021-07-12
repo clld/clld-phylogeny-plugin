@@ -1,7 +1,7 @@
 <%! from clld.web.util.helpers import JSNamespace %>
 
 % if obj.newick:
-    <svg id="${obj.eid}" style="width: 100%; margin-top: 20px; margin-left: 1em;"></svg>
+    <div id="${obj.eid}" class="tree-widget" style="width: 100%; margin-top: 20px; margin-left: 1em; margin-bottom: 20px;"></div>
     <script>
         $(window).load(function() {
                 ${JSNamespace('CLLD_PHYLOGENY_PLUGIN').tree(obj.eid, obj.newick, obj.labelSpec, obj.options)|n};
