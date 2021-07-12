@@ -124,11 +124,11 @@ CLLD_PHYLOGENY_PLUGIN.nodeStyler = function (labelSpec, options) {
                 if (init) {
                     data.data.name = text.text() + ' ' + values.join(sep);
                 }
+                text.attr('transform', null)
+                    .attr('dx', function(d, i) {
+                        return marker_align_offset + 4 + labelSpec[current].length * 12; }
+                    );
             }
-            text.attr('transform', null)
-                .attr('dx', function(d, i) {
-                    return marker_align_offset + 4 + labelSpec[current].length * 12; }
-                );
         }
     }
 };
