@@ -10,8 +10,6 @@ from clld.db.models.common import Parameter, ValueSet
 from clld.web.util.component import Component
 from clld.web.util.htmllib import HTML
 from clld.web.util.helpers import link, map_marker_img
-import ete3
-from ete3.coretype.tree import TreeError
 
 from clld_phylogeny_plugin.interfaces import ITree
 
@@ -68,15 +66,21 @@ class Tree(Component):
     @lazyproperty
     def newick(self):
         if self.parameters:
-            t = ete3.Tree(self.ctx.newick, format=1)
+            from newick import loads
+            t = loads(self.ctx.newick)[0]
             nodes = set(n for n in self.labelSpec.keys())
-            try:
-                t.prune(
-                    nodes.intersection(set(n.name for n in t.traverse())),
-                    preserve_branch_length=True)
-            except TreeError:
+
+            def drop_internal_names(n):
+                if not n.is_leaf:
+                    n.name = None
+            t.prune_by_names(
+                nodes.intersection(set(n.name for n in t.walk() if n.name)), inverse=True)
+            t.remove_redundant_nodes(preserve_lengths=True, keep_leaf_name=True)
+            t.visit(drop_internal_names)
+            leafs = [n for n in t.walk() if n.is_leaf]
+            if len(leafs) < 2:
                 return
-            return t.write(format=1)
+            return t.newick + ';'
         return self.ctx.newick
 
     def get_label_properties(self, label, pindex=None):
@@ -102,8 +106,8 @@ class Tree(Component):
                 return a.name == b.name
 
             values = list(itertools.chain(*[
-                language2valueset[l.pk].values for l in label.languages
-                if l.pk in language2valueset]))
+                language2valueset[lg.pk].values for lg in label.languages
+                if lg.pk in language2valueset]))
             if not values:
                 res['tooltip_title'] = 'Missing data'
                 res['tooltip'] = None
@@ -115,8 +119,8 @@ class Tree(Component):
                     res['tooltip_title'] = '{0}: {1}'.format(
                         values[0].valueset.parameter.id, vname(values[0]))
                     lis = [
-                        HTML.li(link(self.req, l)) for l in label.languages
-                        if l.pk in language2valueset]
+                        HTML.li(link(self.req, lg)) for lg in label.languages
+                        if lg.pk in language2valueset]
                 else:
                     res['tooltip_title'] = '{0}'.format(values[0].valueset.parameter.id)
                     lis = []
@@ -135,7 +139,7 @@ class Tree(Component):
                         break
         else:
             res['tooltip'] = HTML.ul(
-                *[HTML.li(link(self.req, l)) for l in label.languages])
+                *[HTML.li(link(self.req, lg)) for lg in label.languages])
         return res
 
     @staticmethod
@@ -146,10 +150,9 @@ class Tree(Component):
                     rel="stylesheet",
                     href=req.static_url('clld_phylogeny_plugin:static/phylotree.css')),
                 HTML.script(
-                    src="https://d3js.org/d3.v5.js"),
+                    src=req.static_url('clld_phylogeny_plugin:static/d3.v5.js')),
                 HTML.script(
-                    src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/"
-                        "underscore-min.js",
+                    src=req.static_url('clld_phylogeny_plugin:static/underscore-min.js'),
                     charset="utf-8"),
                 HTML.script(
                     type="text/javascript",
@@ -173,13 +176,11 @@ class Tree(Component):
     def labelSpec(self):
         if self.parameters:
             return {
-                l.name: [self.get_label_properties(l, i)
-                         for i in range(len(self.parameters))]
-                for l in self.ctx.treelabels
-                if any(lang.pk in self.language2valueset for lang in l.languages)}
+                lb.name: [self.get_label_properties(lb, i) for i in range(len(self.parameters))]
+                for lb in self.ctx.treelabels
+                if any(lang.pk in self.language2valueset for lang in lb.languages)}
         return {
-            l.name: [self.get_label_properties(l)]
-            for l in self.ctx.treelabels if l.languages}
+            lb.name: [self.get_label_properties(lb)] for lb in self.ctx.treelabels if lb.languages}
 
     def get_default_options(self):
         return {

@@ -1,6 +1,3 @@
-# coding: utf8
-from __future__ import unicode_literals, print_function, division
-
 
 def test_all_equal():
     from clld_phylogeny_plugin.tree import all_equal
@@ -18,5 +15,5 @@ def test_newick(mocker):
         parameters = [mocker.Mock()]
         labelSpec = {'A': mocker.Mock(), 'C': mocker.Mock(), 'X': mocker.Mock()}
 
-    t = TTree(mocker.Mock(newick='(A,B,(C,D)E)F;'), mocker.Mock())
-    assert t.newick == '(A:1,C:2);'
+    t = TTree(mocker.Mock(newick='(A:1.5,B:1,(C:1,D:1)E:1)F:1;'), mocker.Mock())
+    assert t.newick == '(A:1.5,C:2.0):1;'

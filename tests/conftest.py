@@ -1,9 +1,6 @@
-# coding: utf8
-from __future__ import unicode_literals, print_function, division
-import tempfile
 import shutil
+import tempfile
 
-from pyramid import testing
 from pyramid import config
 import transaction
 import pytest
@@ -118,25 +115,3 @@ def app():
 @pytest.fixture(scope='session')
 def testapp(app):
     yield TestApp(app)
-
-
-@pytest.fixture(scope='session')
-def selenium(app, logger='selenium.webdriver.remote.remote_connection'):
-    import logging
-    import tempfile
-    import shutil
-    from pytest_clld import _selenium
-
-    selenium_logger = logging.getLogger(logger)
-    selenium_logger.setLevel(logging.WARNING)
-
-    res = _selenium.Selenium(app, '127.0.0.1:8880', tempfile.mkdtemp())
-    res.server.start()
-    res.sleep()
-    assert res.server.srv
-
-    yield res
-
-    res.browser.quit()
-    res.server.quit()
-    shutil.rmtree(res.downloads)

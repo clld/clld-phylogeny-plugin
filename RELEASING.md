@@ -2,11 +2,15 @@ Releasing clld-phylogeny-plugin
 ===============================
 
 - Do platform test via tox (making sure statement coverage is at 100%):
-```
+```shell
 tox -r
 ```
 
-- Change setup.py version to the new version number.
+```shell
+flake8 src
+```
+
+- Change setup.cfg version to the new version number.
 
 - Create the release commit:
 ```shell
@@ -23,7 +27,7 @@ git tag -a v<VERSION> -m "<VERSION> release"
 git checkout tags/v<VERSION>
 python setup.py clean --all
 rm dist/*
-python setup.py sdist bdist_wheel
+python -m build -n
 twine upload dist/*
 ```
 
@@ -33,7 +37,7 @@ git push origin
 git push --tags origin
 ```
 
-- Append `.dev0` to the version number in `setup.py` for the new development cycle.
+- Append `.dev0` to the version number in `setup.cfg` for the new development cycle.
 
 - Commit/push the version change:
 ```shell
