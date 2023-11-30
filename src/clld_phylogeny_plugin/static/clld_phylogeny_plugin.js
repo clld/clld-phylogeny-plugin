@@ -1,7 +1,7 @@
 CLLD_PHYLOGENY_PLUGIN = {};
 
 
-CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec, offset) {
+CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec, offset, marker_align_offset) {
     var marker, tt, close;
     if (!spec) {
         return;
@@ -75,43 +75,85 @@ CLLD_PHYLOGENY_PLUGIN.marker = function (container, spec, offset) {
                 }
             });
     }
+    if(marker_align_offset > 0){
+      marker.attr('transform', 'translate(' + marker_align_offset.toString() + ', 0)');
+    }
     return marker;
 };
 
-CLLD_PHYLOGENY_PLUGIN.nodeStyler = function (labelSpec) {
-    return function (container, node) {
+CLLD_PHYLOGENY_PLUGIN.nodeStyler = function (labelSpec, options) {
+    return function (element, data) {
         var text, current, sep;
-        if (d3.layout.phylotree.is_leafnode(node)) {
-            text = container.select("text");
-            current = text.text();
-            if (!current.endsWith(' ')) {
+        var init = false;
+        if (d3.phylotree.isLeafNode(data)) {
+            var marker_align_offset = 0;
+            if (options['align-tips']) {
+                var line = element.select("line");
+                if (!options['hasBranchLengths']) {
+                    line.attr("class", "branch");
+                }
+                marker_align_offset = parseFloat(line.attr("x2"));
+            }
+            text = element.select("text");
+            text.attr("fill", "red");
+            if (!data.data.org) {
+                data.data.org = text.text();
+                init = true;
+            }
+            current = data.data.org;
+            if (labelSpec.hasOwnProperty(current)) {
                 var values = [];
-                if (labelSpec.hasOwnProperty(current)) {
-                    text.attr("fill", "red");
-                    sep = ' # ';
-                    for (i = 0; i < labelSpec[current].length; i++) {
-                        CLLD_PHYLOGENY_PLUGIN.marker(container, labelSpec[current][i], i);
-                        if (i == 0 && labelSpec[current][i].hasOwnProperty('tip_title')) {
-                          text.text(labelSpec[current][i]['tip_title']);
-                          if (labelSpec[current][i].hasOwnProperty('tip_values_sep')) {
-                            sep = labelSpec[current][i]['tip_values_sep'];
-                          }
+                sep = ' # ';
+                for (i = 0; i < labelSpec[current].length; i++) {
+                    var lblSpec = labelSpec[current][i];
+                    if (element.select('#m-' + lblSpec.eid).size() === 0) {
+                        CLLD_PHYLOGENY_PLUGIN.marker(element, lblSpec, i, marker_align_offset);
+                    }
+                    if (init) {
+                        if (i == 0 && lblSpec.hasOwnProperty('tip_title')) {
+                            text.text(lblSpec['tip_title']);
+                            if (lblSpec.hasOwnProperty('tip_values_sep')) {
+                                sep = lblSpec['tip_values_sep'];
+                            }
                         }
-                        if (labelSpec[current][i].hasOwnProperty('tip_values')) {
-                          values.push(labelSpec[current][i]['tip_values']);
+                        if (lblSpec.hasOwnProperty('tip_values')) {
+                            values.push(lblSpec['tip_values']);
                         }
                     }
-                    text.attr("transform", null).attr ("x", function (d, i) { return labelSpec[current].length * 12;});
                 }
-                text.text(text.text() + ' ' + values.join(sep) + ' ');
+                if (init) {
+                    data.data.name = text.text() + ' ' + values.join(sep);
+                }
+                text.attr('transform', null)
+                    .attr('dx', function(d, i) {
+                        return marker_align_offset + 4 + labelSpec[current].length * 12; }
+                    );
             }
         }
     }
 };
 
 CLLD_PHYLOGENY_PLUGIN.tree = function (eid, newick, labelSpec, options) {
-    var tree = d3.layout.phylotree().svg(d3.select("#" + eid)).options(options);
-    tree(newick);
-    tree.style_nodes(CLLD_PHYLOGENY_PLUGIN.nodeStyler(labelSpec));
-    tree.layout();
+    var container_select_id = '#' + eid;
+    var d3_container = d3.select(container_select_id);
+
+    d3.phylotree = new phylotree.phylotree(newick);
+    options['hasBranchLengths'] = d3.phylotree.hasBranchLengths();
+    options['node-styler'] = CLLD_PHYLOGENY_PLUGIN.nodeStyler(labelSpec, options);
+    options['container'] = container_select_id;
+
+    // container should be a DIV - a possible custom legacy SVG container will be replaced by a DIV first
+    if (d3_container.node().tagName.toLowerCase() === 'svg') {
+        var p = d3_container.node().parentNode;
+        var org_style = d3_container.attr('style');
+        d3_container.remove();
+        d3.select(p).append('div')
+            .attr('id', eid)
+            .attr('style', org_style)
+            .attr('class', 'tree-widget');
+    }
+
+    d3_container.node()
+        .appendChild(d3.phylotree.render(options).show());
+    d3.phylotree.display.update();
 };

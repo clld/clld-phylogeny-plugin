@@ -7,7 +7,6 @@ This plugin includes the [phylotree](https://github.com/veg/phylotree.js/tree/ma
 library to render phylogenetic trees in the browser.
 
 [![Build Status](https://github.com/clld/clld-phylogeny-plugin/workflows/tests/badge.svg)](https://github.com/clld/clld-phylogeny-plugin/actions?query=workflow%3Atests)
-[![codecov](https://codecov.io/gh/clld/clld-phylogeny-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/clld/clld-phylogeny-plugin)
 [![PyPI](https://img.shields.io/pypi/v/clld-phylogeny-plugin.svg)](https://pypi.python.org/pypi/clld-phylogeny-plugin)
 
 
