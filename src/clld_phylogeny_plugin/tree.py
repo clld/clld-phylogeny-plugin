@@ -1,20 +1,22 @@
 import operator
+import functools
 import itertools
 import collections
+from typing import Any, Callable, Optional
 
 from zope.interface import implementer
 from sqlalchemy.orm import joinedload
-from clldutils.misc import lazyproperty
 from clld.db.meta import DBSession
 from clld.db.models.common import Parameter, ValueSet
 from clld.web.util.component import Component
 from clld.web.util.htmllib import HTML
 from clld.web.util.helpers import link, map_marker_img
+from newick import loads
 
 from clld_phylogeny_plugin.interfaces import ITree
 
 
-def all_equal(iterator, op=operator.eq):
+def all_equal(iterator, op: Callable[[Any, Any], bool] = operator.eq) -> bool:
     iterator = iter(iterator)
     try:
         first = next(iterator)
@@ -40,8 +42,8 @@ class Tree(Component):
         self.ctx = ctx
         self.eid = eid
 
-    @lazyproperty
-    def parameters(self):
+    @functools.cached_property
+    def parameters(self) -> list[Parameter]:  # pylint: disable=C0116
         pids = []
         if 'parameter' in self.req.params:
             pids = self.req.params.getall('parameter')
@@ -57,16 +59,15 @@ class Tree(Component):
                 .all()
         return []
 
-    @lazyproperty
-    def domains(self):
+    @functools.cached_property
+    def domains(self):  # pylint: disable=C0116
         return [
             collections.OrderedDict([(de.pk, de) for de in p.domain])
             for p in self.parameters]
 
-    @lazyproperty
+    @functools.cached_property
     def newick(self):
         if self.parameters:
-            from newick import loads
             t = loads(self.ctx.newick)[0]
             nodes = set(n for n in self.labelSpec.keys())
 
@@ -83,18 +84,18 @@ class Tree(Component):
             return t.newick + ';'
         return self.ctx.newick
 
-    def get_label_properties(self, label, pindex=None):
+    def get_label_properties(self, label, pindex=None) -> dict[str, Any]:
         res = {
-            'eid': 'tlpk{0}-{1}'.format(label, pindex),
+            'eid': f'tlpk{label}-{pindex}',
             'shape': 'c',
             'color': '#ff6600',
             'conflict': False,
-            'tooltip_title': 'Related {0}'.format(self.req.translate('Languages')),
+            'tooltip_title': f"Related {self.req.translate('Languages')}",
         }
         if pindex is not None:
             parameter = self.parameters[pindex]
             domain = self.domains[pindex]
-            language2valueset = {
+            language2valueset: dict[int, ValueSet] = {
                 k: v[pindex] for k, v in self.language2valueset.items() if v[pindex]}
 
             def vname(v):
@@ -116,26 +117,23 @@ class Tree(Component):
             else:
                 res['conflict'] = not all_equal(values, op=comp)
                 if not res['conflict']:
-                    res['tooltip_title'] = '{0}: {1}'.format(
-                        values[0].valueset.parameter.id, vname(values[0]))
+                    res['tooltip_title'] = f'{values[0].valueset.parameter.id}: {vname(values[0])}'
                     lis = [
                         HTML.li(link(self.req, lg)) for lg in label.languages
                         if lg.pk in language2valueset]
                 else:
-                    res['tooltip_title'] = '{0}'.format(values[0].valueset.parameter.id)
+                    res['tooltip_title'] = f'{values[0].valueset.parameter.id}'
                     lis = []
                     for v in values:
                         lis.append(HTML.li(
                             map_marker_img(
-                                self.req, domain[v.domainelement_pk]
-                                if v.domainelement_pk else v),
-                            '{0}: '.format(vname(v)),
+                                self.req, domain[v.domainelement_pk] if v.domainelement_pk else v),
+                            f'{vname(v)}: ',
                             link(self.req, v.valueset.language)))
                 res['tooltip'] = HTML.ul(*lis, class_='unstyled')
                 for lang in label.languages:
                     if lang.pk in language2valueset:
-                        res['shape'], res['color'] = self.get_marker(
-                            language2valueset[lang.pk])
+                        res['shape'], res['color'] = self.get_marker(language2valueset[lang.pk])
                         break
         else:
             res['tooltip'] = HTML.ul(
@@ -145,7 +143,7 @@ class Tree(Component):
     @staticmethod
     def head(req):
         return '\n'.join(
-            "{0}".format(e) for e in [
+            f"{e}" for e in [
                 HTML.link(
                     rel="stylesheet",
                     href=req.static_url('clld_phylogeny_plugin:static/phylotree.css')),
@@ -163,16 +161,17 @@ class Tree(Component):
                         'clld_phylogeny_plugin:static/clld_phylogeny_plugin.js')),
             ])
 
-    @lazyproperty
-    def language2valueset(self):
+    @functools.cached_property
+    def language2valueset(self) -> Optional[dict[int, list[Optional[ValueSet]]]]:
         if self.parameters:
             res = collections.defaultdict(lambda: [None] * len(self.parameters))
             for i, param in enumerate(self.parameters):
                 for vs in param.valuesets:
                     res[vs.language_pk][i] = vs
             return res
+        return None
 
-    @lazyproperty
+    @functools.cached_property
     def labelSpec(self):
         if self.parameters:
             return {
@@ -188,7 +187,7 @@ class Tree(Component):
             'show-scale': False,
         }
 
-    def get_marker(self, valueset):
+    def get_marker(self, valueset: ValueSet):
         if valueset.values:
             val = valueset.values[0]
             if val.domainelement and val.domainelement.jsondatadict.get('icon'):

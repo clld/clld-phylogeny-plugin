@@ -1,3 +1,6 @@
+"""
+SQLAlchemy models for the package.
+"""
 from zope.interface import implementer
 from sqlalchemy import (
     Column,
@@ -23,7 +26,7 @@ class Phylogeny(Base, PolymorphicBaseMixin, IdNameDescriptionMixin):
     newick = Column(Unicode)
 
     @staticmethod
-    def refine_factory_query(query):
+    def refine_factory_query(query):  # pylint: disable=C0116
         return query.options(
             joinedload(Phylogeny.treelabels)
             .joinedload(TreeLabel.language_assocs)
@@ -37,11 +40,11 @@ class TreeLabel(Base, IdNameDescriptionMixin):
     phylogeny_pk = Column(Integer, ForeignKey('phylogeny.pk'))
 
     @declared_attr
-    def phylogeny(cls):
+    def phylogeny(cls) -> Phylogeny:  # pylint: disable=C0116,E0213
         return relationship(Phylogeny, backref=backref('treelabels', order_by=[cls.pk]))
 
     @property
-    def languages(self):
+    def languages(self) -> list[Language]:  # pylint: disable=C0116
         return [la.language for la in sorted(self.language_assocs, key=lambda la: la.ord)]
 
 

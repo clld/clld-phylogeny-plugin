@@ -1,3 +1,6 @@
+"""
+A clld plugin to support language Phylogenies.
+"""
 from clld.interfaces import IParameter
 from clld.web.adapters.base import Representation
 from clld_phylogeny_plugin.models import Phylogeny
@@ -6,7 +9,7 @@ from clld_phylogeny_plugin.interfaces import IPhylogeny, ITree
 from clld_phylogeny_plugin.tree import Tree
 
 
-def includeme(config):
+def includeme(config):  # pylint: disable=C0116
     config.add_static_view('clld-phylogeny-plugin-static', 'clld_phylogeny_plugin:static')
     config.registry.settings['mako.directories'].append(
         'clld_phylogeny_plugin:templates')
