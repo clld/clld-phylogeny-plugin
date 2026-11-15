@@ -40,8 +40,8 @@ class TreeLabel(Base, IdNameDescriptionMixin):
     phylogeny_pk = Column(Integer, ForeignKey('phylogeny.pk'))
 
     @declared_attr
-    def phylogeny(cls) -> Phylogeny:  # pylint: disable=C0116,E0213
-        return relationship(Phylogeny, backref=backref('treelabels', order_by=[cls.pk]))
+    def phylogeny(self) -> Phylogeny:  # pylint: disable=C0116,E0213
+        return relationship(Phylogeny, backref=backref('treelabels', order_by=[self.pk]))
 
     @property
     def languages(self) -> list[Language]:  # pylint: disable=C0116

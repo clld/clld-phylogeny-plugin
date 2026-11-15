@@ -2,12 +2,13 @@ import operator
 import functools
 import itertools
 import collections
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 from zope.interface import implementer
 from sqlalchemy.orm import joinedload
 from clld.db.meta import DBSession
-from clld.db.models.common import Parameter, ValueSet
+from clld.db.models.common import Parameter, ValueSet, DomainElement
 from clld.web.util.component import Component
 from clld.web.util.htmllib import HTML
 from clld.web.util.helpers import link, map_marker_img
@@ -60,13 +61,13 @@ class Tree(Component):
         return []
 
     @functools.cached_property
-    def domains(self):  # pylint: disable=C0116
+    def domains(self) -> list[collections.OrderedDict[int, DomainElement]]:
         return [
             collections.OrderedDict([(de.pk, de) for de in p.domain])
             for p in self.parameters]
 
     @functools.cached_property
-    def newick(self):
+    def newick(self) -> str | None:
         if self.parameters:
             t = loads(self.ctx.newick)[0]
             nodes = set(n for n in self.labelSpec.keys())
@@ -79,8 +80,8 @@ class Tree(Component):
             t.remove_redundant_nodes(preserve_lengths=True, keep_leaf_name=True)
             t.visit(drop_internal_names)
             leafs = [n for n in t.walk() if n.is_leaf]
-            if len(leafs) < 2:
-                return
+            if len(leafs) < 2:  # noqa: PLR2004
+                return None
             return t.newick + ';'
         return self.ctx.newick
 
@@ -162,17 +163,17 @@ class Tree(Component):
             ])
 
     @functools.cached_property
-    def language2valueset(self) -> Optional[dict[int, list[Optional[ValueSet]]]]:
+    def language2valueset(self) -> dict[int, list[ValueSet | None]] | None:
         if self.parameters:
             res = collections.defaultdict(lambda: [None] * len(self.parameters))
             for i, param in enumerate(self.parameters):
                 for vs in param.valuesets:
                     res[vs.language_pk][i] = vs
             return res
-        return None
+        return None  # pragma: no cover
 
     @functools.cached_property
-    def labelSpec(self):
+    def labelSpec(self):  # noqa: N802
         if self.parameters:
             return {
                 lb.name: [self.get_label_properties(lb, i) for i in range(len(self.parameters))]
