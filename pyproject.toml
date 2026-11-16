@@ -60,7 +60,7 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-clld_phylogeny_plugin = ["templates/*", "static/*"]
+clld_phylogeny_plugin = ["templates/**/*", "static/*"]
 
 [tool.ruff]
 line-length = 100
